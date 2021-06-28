@@ -29,7 +29,8 @@
     set_fact:
       calico_rr_node_patched: >-
         {{ calico_rr_node.stdout | from_json | combine({ 'spec': { 'bgp':
-        { 'routeReflectorClusterID': cluster_id }}}, recursive=True) }}
+        { 'routeReflectorClusterID': cluster_id }}}, recursive=True) |
+        combine({ 'metadata': { 'labels': { 'i-am-a-route-reflector': 'true' }}}, recursive=True) }}
 
   - name: Calico-rr | Configure route reflector  # noqa command-instead-of-shell
     shell: "{{ bin_dir }}/calicoctl.sh replace -f-"
