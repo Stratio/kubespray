@@ -1,0 +1,18 @@
+- name: Check which kube-control nodes are already members of the cluster
+  kubernetes.core.k8s_info:
+    kubeconfig: "{{ ansible_env.HOME | default('/root') }}/.kube/config"
+    api_version:
+    kind: Node
+    label_selectors:
+      - "node-role.kubernetes.io/control-plane"
+  register: kube_control_planes_raw
+  ignore_errors: yes
+
+- name: Set fact joined_control_panes
+  set_fact:
+    joined_control_planes: "{{ kube_control_planes_raw.resources | default([]) | map (attribute='metadata') | list | map (attribute='name') | list }}"
+
+- name: Set fact first_kube_control_plane
+  set_fact:
+    first_kube_control_plane: "{{ joined_control_planes | first | default(groups['kube_control_plane']|first) }}"
+
