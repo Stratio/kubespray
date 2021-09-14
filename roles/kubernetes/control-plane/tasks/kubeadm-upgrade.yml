@@ -1,20 +1,9 @@
 ---
-- name: Define if nodes need to be upgraded
-  shell: kubeadm version -o json
-  register: control_plane_kube_version
-  ignore_errors: yes
-
-- name: Set fact for knowing if the node must or not be upgraded
-  set_fact:
-    upgrade_kubeadm: "{{ (control_plane_kube_version.stdout| from_json).clientVersion.gitVersion | default(kube_version) is version(kube_version, '<') }}"
-
 - name: kubeadm | Check api is up
   uri:
     url: "https://{{ ip | default(fallback_ips[inventory_hostname]) }}:{{ kube_apiserver_port }}/healthz"
     validate_certs: false
-  when:
-    - inventory_hostname in groups['kube_control_plane']
-    - upgrade_kubeadm
+  when: inventory_hostname in groups['kube_control_plane']
   register: _result
   retries: 60
   delay: 5
@@ -34,14 +23,12 @@
   # Retry is because upload config sometimes fails
   retries: 3
   until: kubeadm_upgrade.rc == 0
-  when:
-    - inventory_hostname == first_kube_control_plane
-    - upgrade_kubeadm
+  when: inventory_hostname == first_kube_control_plane
   failed_when: kubeadm_upgrade.rc != 0 and "field is immutable" not in kubeadm_upgrade.stderr
   environment:
     PATH: "{{ bin_dir }}:{{ ansible_env.PATH }}"
   notify: Master | restart kubelet
-  # TODO check the kube_control_plane
+
 - name: kubeadm | Upgrade other masters
   command: >-
     timeout -k 600s 600s
@@ -53,9 +40,7 @@
     --etcd-upgrade={{ etcd_kubeadm_enabled | bool | lower }}
     --force
   register: kubeadm_upgrade
-  when:
-    - inventory_hostname != first_kube_control_plane
-    - upgrade_kubeadm
+  when: inventory_hostname != first_kube_control_plane
   failed_when:
     - kubeadm_upgrade.rc != 0
     - '"field is immutable" not in kubeadm_upgrade.stderr'
@@ -70,8 +55,6 @@
   with_items:
     - /root/.kube/cache
     - /root/.kube/http-cache
-  when:
-    - upgrade_kubeadm
 
 # FIXME: https://github.com/kubernetes/kubeadm/issues/1318
 - name: kubeadm | scale down coredns replicas to 0 if not using coredns dns_mode
@@ -88,5 +71,4 @@
   when:
     - kubeadm_scale_down_coredns_enabled
     - dns_mode not in ['coredns', 'coredns_dual']
-    - kubeadm_upgrade
   changed_when: false

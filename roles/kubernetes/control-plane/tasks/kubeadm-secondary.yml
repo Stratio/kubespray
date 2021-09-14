@@ -66,5 +66,3 @@
   when:
     - inventory_hostname != first_kube_control_plane
     - kubeadm_already_run is not defined or not kubeadm_already_run.stat.exists
-    # TODO esta primera condición no es TRUE nunca en caso de scale porque el primer nodo
-    # puede no ser el nodo que ya estaba en el clúster

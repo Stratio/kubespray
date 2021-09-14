@@ -2,6 +2,7 @@
 - import_tasks: pre-upgrade.yml
   tags:
     - k8s-pre-upgrade
+
 - name: Define nodes already joined to existing cluster and first_kube_master
   import_tasks: define-first-kube-control.yml
 

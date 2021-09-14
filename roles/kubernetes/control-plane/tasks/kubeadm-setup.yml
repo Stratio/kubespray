@@ -164,7 +164,6 @@
   retries: 5
   delay: 5
   until: temp_token is succeeded
-  # TODO analizar peligro potencial de que esta tarea no caiga en el control-plane unido
   delegate_to: "{{ first_kube_control_plane }}"
   when: kubeadm_token is not defined
   tags:
