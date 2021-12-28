@@ -62,3 +62,26 @@
   when:
     - inventory_hostname in groups['etcd']
     - etcd_member_id.stdout | length > 0
+
+# Delete node from kubeadm-config
+- name: Fetch kubeadm-config information
+  kube_info:
+    name: kubeadm-config
+    resource: configmap
+    namespace: kube-system
+  register: current_kubeadm_config
+
+- name: Create kubeadm-config file removing control-plane no longer existing etcd endpoints
+  copy:
+    dest: /tmp/kubeadm-config
+    content: "{{ current_kubeadm_config.k8s_info | regex_replace( node |default(kube_node)  + ':\\\\n' + ' *advertiseAddress: ([0-9]{1,3}.){3}[0-9]{1,3}\\\\n' + ' *bindPort: [0-9]{1,5}' , '') }}"
+
+- name: Update kubeadm-config configmap removing control-plane no longer existing endpoints
+  kube:
+      kubectl: "{{ bin_dir }}/kubectl"
+      file:  /tmp/kubeadm-config
+
+- name: Clean the leftovers of the cm file
+  file:
+    state: absent
+    path: /tmp/kubeadm-config

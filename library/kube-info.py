@@ -1,6 +1,5 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-import ansible.utils.display
 
 DOCUMENTATION = """
 ---
@@ -41,6 +40,11 @@ options:
     default: null
     description:
       - The url for the API server that commands are executed against.
+  tofile:
+    required: false
+    default: null
+    description:
+        - Dumps the information into a file
   state:
     required: false
     choices: ['present', 'check']
@@ -107,9 +111,10 @@ class KubeManager(object):
         if module.params.get('name'):
             self.base_cmd.append(module.params.get('name'))
 
-        self.state = module.params.get('state', 'check')
+        self.state = module.params.get('state')
+        self.tofile = module.params.get('tofile')
 
-    def _kubeclt_failure(self, rc, out, err):
+    def _kubectl_failure(self, rc, out, err):
         """'Manage errors while running kubectl"""
         self.module.fail_json(
             msg = 'error running kubectl (%s) command (rc=%d), out=\'%s\', err=\'%s\'' % (
@@ -117,19 +122,22 @@ class KubeManager(object):
 
     def execute(self):
         """Execute the kubectl command that will return the k8s_info"""
-        # If resources is not all check resource exists
+        # If resources is not 'all' check resource exists
         if self.resource != all:
             resource_existence = self._check_resource_exists()
             if not resource_existence:
                 return "{}"
         try:
             rc, out, err = self.module.run_command(self.base_cmd)
-            #            if state == "check":
             if rc != 0:
-                self.module.fail_json(
-                    msg = 'error running kubectl (%s) command (rc=%d), out=\'%s\', err=\'%s\'' % (
-                        ' '.join(self.base_cmd), rc, out, err))
-
+                self._kubectl_failure(rc, out, err)
+            if self.tofile:
+                try:
+                    with open(self.tofile, "w") as f:
+                        f.write(out)
+                except Exception as exc:
+                    self.module.fail_json(
+                        msg = 'error writing information to file %s. %s' .  % (self.tofile, str(exc)))
         except Exception as exc:
             self.module.fail_json(
                 msg = 'error running kubectl (%s) command: %s' % (' '.join(self.base_cmd), str(exc)))
@@ -149,7 +157,7 @@ class KubeManager(object):
         try:
             rc, out, err = self.module.run_command(resources_cmd)
             if rc != 0:
-                self._kubeclt_failure(rc, out, err)
+                self._kubectl_failure(rc, out, err)
         except Exception as exc:
             self.module.fail_json(
                 msg = 'error running kubectl (%s) command: %s' % (' '.join(self.base_cmd), str(exc)))
@@ -181,7 +189,8 @@ def main():
         "namespace": {"required": False, "type": "str"},
         "resource": {"required": True, "type": "str"},
         "server": {"required": False, "type": "str"},
-        "state": {"required": False, "type": "str", "choices": ['present', 'check'], "default": "check"}
+        "state": {"required": False, "type": "str", "choices": ['present', 'check'], "default": "check"},
+        "tofile": {"required": False, "type": str}
     }
 
     module = AnsibleModule(argument_spec = fields)
