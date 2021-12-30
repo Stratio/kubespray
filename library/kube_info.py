@@ -124,8 +124,8 @@ class KubeManager(object):
         """Execute the kubectl command that will return the k8s_info"""
         # If resources is not 'all' check resource exists
         if self.resource != all:
-            resource_existence = self._check_resource_exists()
-            if not resource_existence:
+            exists = resource_existence = self._check_resource_exists()
+            if not exists:
                 return "{}"
         try:
             rc, out, err = self.module.run_command(self.base_cmd)
@@ -137,14 +137,12 @@ class KubeManager(object):
                         f.write(out)
                 except Exception as exc:
                     self.module.fail_json(
-                        msg = 'error writing information to file %s. %s' .  % (self.tofile, str(exc)))
+                        msg = 'error writing information to file %s. %s' % (self.tofile, str(exc)))
         except Exception as exc:
             self.module.fail_json(
                 msg = 'error running kubectl (%s) command: %s' % (' '.join(self.base_cmd), str(exc)))
         if not out:
-            if self.state == "check":
-                Display().warning('There is no %s named %s in the specified namespace.' % (self.resource, self.name))
-            elif self.state == "present":
+            if self.state != "present":
                 self.module.fail_json(
                     msg = 'There is no %s named %s in the specified namespace.' % (self.resource, self.name)
                 )
@@ -174,8 +172,7 @@ class KubeManager(object):
                 msg = 'Error, resource %s does not exist in the k8s cluster' % self.resource
             )
         elif resource not in resources:
-            Display().warning(
-                'resource does not exist, as the state of the play is \'check\' we won\'t fail')
+            msg = 'Resource %s does not exist in the k8s cluster, but we are in check mode' % self.resource
             return False
         else:
             return True
@@ -206,7 +203,6 @@ def main():
 
 
 from ansible.module_utils.basic import *  # noqa
-from ansible.utils.display import Display
 
 if __name__ == '__main__':
     main()

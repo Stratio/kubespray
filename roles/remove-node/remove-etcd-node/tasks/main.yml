@@ -72,6 +72,8 @@
     resource: configmap
     namespace: kube-system
   register: current_kubeadm_config
+  retries: 5
+  delay: 15
 
 - name: Create kubeadm-config file removing control-plane no longer existing etcd endpoints
   copy:
