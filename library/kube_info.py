@@ -124,7 +124,7 @@ class KubeManager(object):
         """Execute the kubectl command that will return the k8s_info"""
         # If resources is not 'all' check resource exists
         if self.resource != all:
-            exists = resource_existence = self._check_resource_exists()
+            exists = self._check_resource_exists()
             if not exists:
                 return "{}"
         try:
