@@ -39,7 +39,7 @@
     ETCDCTL_CACERT: "{{ kube_cert_dir + '/etcd/ca.crt' if etcd_kubeadm_enabled else etcd_cert_dir + '/ca.pem' }}"
     ETCDCTL_ENDPOINTS: "https://{{ hostvars[groups['etcd']|first]['etcd_access_address'] |
                                    default(hostvars[groups['etcd']|first]['ip']) |
-                                   default(hostvars[groups['etcd']|first]['fallback_ips'][groups['etcd']|first])
+                                   default(hostvars[groups['etcd']|first]['fallback_ips'][groups['etcd']|first]) |
                                    default(hostvars[groups['etcd']|first]['ansible_default_ipv4']['address']) }}:2379"
   delegate_to: "{{ groups['etcd']|first }}"
   when: inventory_hostname in groups['etcd']
