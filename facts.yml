@@ -1,6 +1,6 @@
 ---
 - name: Gather facts
-  hosts: k8s_cluster:etcd:calico_rr
+  hosts: "{{ hosts_to_gather_facts | default('k8s_cluster:etcd:calico_rr') }}"
   gather_facts: False
   tags: always
   tasks:
