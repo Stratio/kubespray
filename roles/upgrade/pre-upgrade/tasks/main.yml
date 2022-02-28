@@ -73,9 +73,9 @@
         {{ bin_dir }}/kubectl drain
         --force
         --ignore-daemonsets
-        --grace-period {{ hostvars['localhost']['drain_grace_period_after_failure'] | default(drain_grace_period) }}
-        --timeout {{ hostvars['localhost']['drain_timeout_after_failure'] | default(drain_timeout) }}
-        --delete-local-data {{ kube_override_hostname|default(inventory_hostname) }}
+        --grace-period {{ drain_grace_period }}
+        --timeout {{ drain_timeout }}
+        --delete-emptydir-data {{ kube_override_hostname|default(inventory_hostname) }}
         {% if drain_pod_selector %}--pod-selector '{{ drain_pod_selector }}'{% endif %}
       when: drain_nodes
       register: result
