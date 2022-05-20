@@ -15,9 +15,9 @@ spec:
       targetPort: calico-typha
       name: calico-typha
 {% if typha_prometheusmetricsenabled %}
-    - port: "{{ typha_prometheusmetricsport }}"
+    - port: 9093
       protocol: TCP
-      targetPort: "{{ typha_prometheusmetricsport }}"
+      targetPort: http-metrics
       name: metrics
 {% endif %}
   selector:
@@ -81,6 +81,11 @@ spec:
         - containerPort: 5473
           name: calico-typha
           protocol: TCP
+{% if typha_prometheusmetricsenabled %}
+        - containerPort: "{{ typha_prometheusmetricsport }}"
+          name: http-metrics
+          protocol: TCP
+{% endif %}
         envFrom:
         - configMapRef:
             # Allow KUBERNETES_SERVICE_HOST and KUBERNETES_SERVICE_PORT to be overridden for eBPF mode.
