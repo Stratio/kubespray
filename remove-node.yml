@@ -27,16 +27,15 @@
     hosts_to_gather_facts: kube_control_plane[0]:etcd[0]
   when: not reset_nodes|default(True)|bool
 
-- name: Gather facts
-  import_playbook: facts.yml
-  when: reset_nodes|default(True)|bool
-
 - hosts: kube_control_plane[0]
   gather_facts: no
   environment: "{{ proxy_disable_env }}"
   roles:
-    - { role: kubespray-defaults, vars: { hosts_to_gather_facts: "{{ ansible_play_batch }}" } }
-    - { role: remove-node/pre-remove, tags: pre-remove }
+    - { role: kubespray-defaults, vars: { hosts_to_gather_facts: "{{ ansible_play_batch }}" }, when: not reset_nodes|default(True)|bool }
+
+- name: Gather facts
+  import_playbook: facts.yml
+  when: reset_nodes|default(True)|bool
 
 - hosts: "{{ node | default('kube_node') }}"
   gather_facts: no
