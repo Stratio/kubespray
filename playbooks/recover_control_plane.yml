@@ -6,6 +6,8 @@
   hosts: etcd[0]
   environment: "{{ proxy_disable_env }}"
   roles:
+    - { role: kubespray-defaults, when: "'broken_etcd' in groups and groups['broken_etcd']" }
+    - { role: recover_control_plane/etcd, when: "'broken_etcd' in groups and groups['broken_etcd']" }
     - { role: kubespray-defaults}
     - role: recover_control_plane/etcd
       when: etcd_deployment_type != "kubeadm"
@@ -14,8 +16,8 @@
   hosts: kube_control_plane[0]
   environment: "{{ proxy_disable_env }}"
   roles:
-    - { role: kubespray-defaults}
-    - { role: recover_control_plane/control-plane }
+    - { role: kubespray-defaults, when: "'broken_kube_control_plane' in groups and groups['broken_kube_control_plane']" }
+    - { role: recover_control_plane/control-plane, when: "'broken_kube_control_plane' in groups and groups['broken_kube_control_plane']" }
 
 - name: Apply whole cluster install
   import_playbook: cluster.yml
