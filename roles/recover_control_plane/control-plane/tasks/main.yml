@@ -8,7 +8,6 @@
   retries: 6
   delay: 10
   changed_when: false
-  when: groups['broken_kube_control_plane']
 
 - name: Delete broken kube_control_plane nodes from cluster
   command: "{{ kubectl }} delete node {{ item }}"
@@ -17,7 +16,6 @@
   with_items: "{{ groups['broken_kube_control_plane'] }}"
   register: delete_broken_kube_masters
   failed_when: false
-  when: groups['broken_kube_control_plane']
 
 - name: Fail if unable to delete broken kube_control_plane nodes from cluster
   fail:
@@ -25,5 +23,4 @@
   loop: "{{ delete_broken_kube_masters.results }}"
   changed_when: false
   when:
-    - groups['broken_kube_control_plane']
     - "item.rc != 0 and not 'NotFound' in item.stderr"
