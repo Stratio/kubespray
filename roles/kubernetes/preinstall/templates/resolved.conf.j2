@@ -1,15 +1,16 @@
 [Resolve]
 {% if not dns_early and dns_late %}
-DNS={{ ([nodelocaldns_ip] if enable_nodelocaldns else coredns_server )| list | join(' ') }}
-{% endif %}
+DNS={{ (([nodelocaldns_ip] if enable_nodelocaldns else coredns_server) + upstream_dns_servers|d([])) | join(' ') }}
+{% else %}
 FallbackDNS={{ ( upstream_dns_servers|d([]) + nameservers|d([]) + cloud_resolver|d([])) | unique | join(' ') }}
+{% endif %}
 {% if remove_default_searchdomains and searchdomains|default([])|length != 0 %}
 Domains={{ searchdomains|default([]) | join(' ') }}
 {% else %}
 Domains={{ ([ 'default.svc.' + dns_domain, 'svc.' + dns_domain ] + searchdomains|default([])) | join(' ') }}
 {% endif %}
 DNSSEC=no
-Cache=no-negative
+Cache={{ (ansible_distribution == 'Ubuntu') | ternary('no-negative','yes') }}
 {% if systemd_resolved_disable_stub_listener | bool %}
 DNSStubListener=no
 {% endif %}
