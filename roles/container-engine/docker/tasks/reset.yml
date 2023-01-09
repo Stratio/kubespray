@@ -115,19 +115,38 @@
     state: absent
   with_items: "{{ var_lib_docker_content.files }}"
 
-- name: Docker | Remove containerd configuration files
+- name: Docker | Get /var/lib/containerd files
+  find:
+    paths: /var/lib/containerd
+    hidden: true
+    file_type: any
+  register: var_lib_containerd_content
+  when: docker_packages_list|length>0
+
+- name: Docker | Remove /var/lib/containerd files
+  file:
+    path: "{{ item.path }}"
+    state: absent
+  with_items: "{{ var_lib_containerd_content.files }}"
+  when: docker_packages_list|length>0
+
+- name: Docker | Try to Remove containerd directory
   file:
     name: /var/lib/containerd
     state: absent
+  ignore_errors: true
+  register: remove_containerd_directory
   when: docker_packages_list|length>0
 
 - name: Docker | Link /var/lib/containerd to /var/lib/docker
   file:
     src: /var/lib/docker
-    dest: "/var/lib/containerd"
+    dest: /var/lib/containerd
     state: link
     force: yes
-  when: docker_packages_list|length>0
+  when:
+    - docker_packages_list|length>0
+    - not remove_containerd_directory.failed
 
 - name: Docker | systemctl daemon-reload  # noqa 503
   systemd:
