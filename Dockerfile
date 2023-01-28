@@ -2,7 +2,7 @@
 FROM ubuntu:jammy-20230308
 # Some tools like yamllint need this
 # Pip needs this as well at the moment to install ansible
-# (and potentially other packages) 
+# (and potentially other packages)
 # See: https://github.com/pypa/pip/issues/10219
 ENV LANG=C.UTF-8 \
     DEBIAN_FRONTEND=noninteractive \
