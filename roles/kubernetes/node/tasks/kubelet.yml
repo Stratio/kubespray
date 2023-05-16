@@ -22,7 +22,7 @@
   template:
     src: "kubelet-config.{{ kubeletConfig_api_version }}.yaml.j2"
     dest: "{{ kube_config_dir }}/kubelet-config.yaml"
-    mode: 0640
+    mode: 0600
   notify: Kubelet | restart kubelet
   tags:
     - kubelet
