@@ -16,6 +16,23 @@
     mode: 0755
     remote_src: yes
 
+- name: Calico | Create Calico cni config folder
+  file:
+    path: "/etc/cni/net.d"
+    state: directory
+    mode: 0600
+    owner: root
+    group: root
+
+- name: Calico | Write Calico cni config
+  template:
+    src: "cni-calico.conflist.j2"
+    dest: "/etc/cni/net.d/calico.conflist.template"
+    mode: 0644
+    owner: root
+  register: calico_conflist
+  notify: reset_calico_cni
+
 - name: Calico | Create calico certs directory
   file:
     dest: "{{ calico_cert_dir }}"
