@@ -92,7 +92,7 @@ kube_apiserver_pod_eviction_unreachable_timeout_seconds: "300"
 kube_apiserver_enable_admission_plugins: []
 
 # enable admission plugins configuration
-kube_apiserver_admission_control_config_file: false
+kube_apiserver_admission_control_config_file: "{{ kube_apiserver_enable_admission_plugins | intersect(kube_apiserver_admission_plugins_needs_configuration) | length > 0 }}"
 
 # data structure to configure EventRateLimit admission plugin
 # this should have the following structure:
