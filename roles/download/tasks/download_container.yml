@@ -53,7 +53,7 @@
         - not download_run_once
 
     - name: download_container | Download image if required
-      command: "{{ image_pull_command_on_localhost if do  wnload_localhost else image_pull_command }} {{ image_reponame }}"
+      command: "{{ image_pull_command_on_localhost if download_localhost else image_pull_command }} {{ image_reponame }}"
       delegate_to: "{{ download_delegate if download_run_once else inventory_hostname }}"
       delegate_facts: yes
       run_once: "{{ download_run_once }}"
