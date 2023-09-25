@@ -121,6 +121,11 @@ kube_webhook_token_auth_url_skip_tls_verify: false
 ## base64-encoded string of the webhook's CA certificate
 # kube_webhook_token_auth_ca_data: "LS0t..."
 
+## Kubectl wait commands timeout before giving up:
+## Zero means check once and don't wait, negative means wait for a week.
+kubectl_timeout: "30s"
+kubectl_metallb_timeout: "{{ kubectl_timeout }}"
+
 ## NTP Settings
 # Start the ntpd or chrony service and enable it at system boot.
 ntp_enabled: false
@@ -136,3 +141,4 @@ unsafe_show_logs: false
 
 ## If enabled it will allow kubespray to attempt setup even if the distribution is not supported. For unsupported distributions this can lead to unexpected failures in some cases.
 allow_unsupported_distribution_setup: false
+

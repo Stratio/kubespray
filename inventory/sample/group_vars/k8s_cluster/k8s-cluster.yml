@@ -370,11 +370,6 @@ persistent_volumes_enabled: false
 ## Amount of time to retain events. (default 1h0m0s)
 event_ttl_duration: "1h0m0s"
 
-## Kubectl wait commands timeout before giving up:
-## Zero means check once and don't wait, negative means wait for a week.
-kubectl_timeout: "30s"
-kubectl_metallb_timeout: "{{ kubectl_timeout }}"
-
 ## Automatically renew K8S control plane certificates on first Monday of each month
 auto_renew_certificates: false
 # First Monday of each month
