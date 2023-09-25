@@ -17,6 +17,6 @@ spec:
   - "{{ ip_range }}"
 {% endfor %}
   autoAssign: {{ pool.auto_assign }}
-  avoidBuggyIPs: true
+  avoidBuggyIPs: {{ metallb_config.avoidBuggyIps | default(true) }}
 
 {% endfor %}
