@@ -72,12 +72,16 @@
     loop_control:
       loop_var: mirror
     ignore_errors: true
+    when:
+    - download_files
 
   # Ansible 2.9 requires we convert a generator to a list
   - name: download_file | Get the list of working mirrors
     set_fact:
       valid_mirror_urls: "{{ uri_result.results | selectattr('failed', 'eq', False) | map(attribute='mirror') | list }}"
     delegate_to: "{{ download_delegate if download_force_cache else inventory_hostname }}"
+    when:
+    - download_files
 
   # This must always be called, to check if the checksum matches. On no-match the file is re-downloaded.
   # This task will avoid logging it's parameters to not leak environment passwords in the log
@@ -101,6 +105,8 @@
     delay: "{{ retry_stagger | default(5) }}"
     environment: "{{ proxy_env }}"
     no_log: "{{ not (unsafe_show_logs|bool) }}"
+    when:
+    - download_files
 
   - name: download_file | Copy file back to ansible host file cache
     synchronize:
@@ -113,6 +119,49 @@
     - not download_localhost
     - download_delegate == inventory_hostname
 
+  - name: download_file | Determine if file is in localhost cache
+    stat:
+      path: "{{ file_path_cached }}"
+      get_attributes: no
+      get_checksum: no
+      get_mime: no
+    delegate_to: localhost
+    connection: local
+    delegate_facts: no
+    register: cache_file
+    changed_when: false
+    become: false
+    when:
+    - download_force_cache
+
+  - name: download_file | Determine if file is in nodes cache
+    stat:
+      path: "{{ file_path_cached }}"
+      get_attributes: no
+      get_checksum: no
+      get_mime: no
+    register: cache_file
+    changed_when: false
+    become: false
+    when:
+    - download_force_cache_nodes
+
+  - name: download_file | Set fact indicating if file is in cache
+    set_fact:
+      file_is_cached: "{{ cache_file.stat.exists }}"
+    tags:
+      - facts
+    when:
+      - download_force_cache or download_force_cache_nodes
+
+  - name: Stop if file not in cache on ansible host when download_force_cache=true or download_force_cache_nodes=true
+    assert:
+      that: file_is_cached
+      msg: "File cache file {{ file_path_cached }} not found{{ ' on localhost' if download_force_cache }}"
+    when:
+      - download_force_cache or download_force_cache_nodes
+      - not download_run_once
+
   - name: download_file | Copy file from cache to nodes, if it is available
     synchronize:
       src: "{{ file_path_cached }}"
@@ -124,6 +173,7 @@
     delay: "{{ retry_stagger | random + 3 }}"
     retries: 4
     when:
+    - download_files
     - download_force_cache
 
   - name: download_file | Set mode and owner
@@ -132,10 +182,13 @@
       mode: "{{ download.mode | default(omit) }}"
       owner: "{{ download.owner | default(omit) }}"
     when:
+    - download_files
     - download_force_cache
 
   - name: "download_file | Extract file archives"
     include_tasks: "extract_file.yml"
+    vars:
+      extract_file_source: "{{ file_path_cached if download_force_cache_nodes else download.dest }}"
 
   tags:
   - download
