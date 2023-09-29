@@ -280,7 +280,7 @@
   assert:
     that: ansible_os_family not in ["Flatcar", "Flatcar Container Linux by Kinvolk"]
     msg: "download_run_once not supported for Flatcar Container Linux"
-  when: download_run_once or download_force_cache
+  when: download_run_once or download_force_cache or download_force_cache_nodes
 
 - name: Ensure minimum containerd version
   assert:

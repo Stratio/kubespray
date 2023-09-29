@@ -16,6 +16,14 @@ download_keep_remote_cache: false
 # back to the ansible runner's cache, if they are not yet preset.
 download_force_cache: false
 
+# Only useful when download_run_once is false and download_force_cache is false:
+# Localy cached files and images are expected in kubernetes nodes.
+# NOTE: Setting this parameter to TRUE requires download_cache_dir to be set as local_release_dir
+download_force_cache_nodes: false
+
+# Try mirrors when downloading files
+download_files: "{{ not download_force_cache_nodes }}"
+
 # Used to only evaluate vars from download role
 skip_downloads: false
 
