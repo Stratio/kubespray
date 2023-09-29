@@ -38,20 +38,32 @@
       when:
         - download_force_cache
 
+    - name: Download_container | Determine if image is in nodes cache
+      stat:
+        path: "{{ image_path_cached }}"
+        get_attributes: no
+        get_checksum: no
+        get_mime: no
+      register: cache_image
+      changed_when: false
+      become: false
+      when:
+        - download_force_cache_nodes
+
     - name: Download_container | Set fact indicating if image is in cache
       set_fact:
         image_is_cached: "{{ cache_image.stat.exists }}"
       tags:
         - facts
       when:
-        - download_force_cache
+        - download_force_cache or download_force_cache_nodes
 
-    - name: Stop if image not in cache on ansible host when download_force_cache=true
+    - name: Stop if image not in cache on ansible host when download_force_cache=true or download_force_cache_nodes=true
       assert:
         that: image_is_cached
-        msg: "Image cache file {{ image_path_cached }} not found for {{ image_reponame }} on localhost"
+        msg: "Image cache file {{ image_path_cached }} not found for {{ image_reponame }}{{ ' on localhost' if download_force_cache }}"
       when:
-        - download_force_cache
+        - download_force_cache or download_force_cache_nodes
         - not download_run_once
 
     - name: Download_container | Download image if required
@@ -115,7 +127,7 @@
       failed_when: container_load_status is failed
       when:
         - pull_required
-        - download_force_cache
+        - download_force_cache or download_force_cache_nodes
 
     - name: Download_container | Remove container image from cache
       file:

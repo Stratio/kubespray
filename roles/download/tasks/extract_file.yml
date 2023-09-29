@@ -1,7 +1,7 @@
 ---
 - name: Extract_file | Unpacking archive
   unarchive:
-    src: "{{ download.dest }}"
+    src: "{{ extract_file_source }}"
     dest: "{{ download.dest | dirname }}"
     owner: "{{ download.owner | default(omit) }}"
     mode: "{{ download.mode | default(omit) }}"
