@@ -221,11 +221,3 @@ calico_advertise_service_loadbalancer_ips:
   - 10.6.0.0/16
   - 10.10.0.0/16
 ```
-## Avoiding Buggy Ips [ xxx.xxx.xxx.0, xxx.xxx.xxx.255]
-
-By default Metallb avoids assigning any IP address that ends in 0 or 255. If you want it to be able to assign this IP Addresses you need to enable this value:
-
-```
-metallb_config:
-    avoidBuggyIps: true
-```
