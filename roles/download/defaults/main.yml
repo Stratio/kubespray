@@ -141,8 +141,8 @@ skopeo_version: v1.10.0
 kube_major_version: "{{ kube_version | regex_replace('^v([0-9])+\\.([0-9]+)\\.[0-9]+', 'v\\1.\\2') }}"
 
 etcd_supported_versions:
-  v1.26: "v3.5.6"
-  v1.25: "v3.5.6"
+  v1.26: "v3.5.9"
+  v1.25: "v3.5.9"
   v1.24: "v3.5.6"
   v1.23: "v3.5.6"
 etcd_version: "{{ etcd_supported_versions[kube_major_version] }}"
@@ -756,12 +756,16 @@ etcd_binary_checksums:
   # Etcd does not have arm32 builds at the moment, having some dummy value is
   # required to avoid "no attribute" error
   arm:
+    v3.5.9: 0
     v3.5.6: 0
   arm64:
+    v3.5.9: bb201c106a61bbab59e2d9f37f4bdff99d50201f513c66b4578741eab581fb28
     v3.5.6: 888e25c9c94702ac1254c7655709b44bb3711ebaabd3cb05439f3dd1f2b51a87
   amd64:
+    v3.5.9: d59017044eb776597eca480432081c5bb26f318ad292967029af1f62b588b042
     v3.5.6: 4db32e3bc06dd0999e2171f76a87c1cffed8369475ec7aa7abee9023635670fb
   ppc64le:
+    v3.5.9: 551539ebb344ebdc77f170ea51512a6cda35877ffdcbd8b3316b2495a8b2bd87
     v3.5.6: e235cb885996b8aac133975e0077eaf0a2f8dc7062ad052fa7395668a365906b
 
 cni_binary_checksums:
