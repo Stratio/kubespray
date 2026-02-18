@@ -641,6 +641,46 @@ calico_crds_archive_checksums:
   v3.28.2: f02a0e99e060850bd9050d4c94d37df899911a5e357e1d26e1b5b79a923bb389
   v3.28.1: c56f1530e7ded9d5b4afb9d83a7a24da6d2959ef7ad38521813f1c2bf138182d
   v3.28.0: ee721337db0cd847e91aae1cdfd420596896ebcb865575fd913c2f12ac2cdb76
+krew_archive_checksums:
+  darwin:
+    arm:
+      v0.4.4: 0
+      v0.4.3: 0
+    arm64:
+      v0.4.4: e6ac776140b228d6bdfda11247baf4e9b11068f42005d0975fc260c629954464
+      v0.4.3: 22f29ce3c3c9c030e2eaf3939d2b00f0187dfdbbfaee37fba8ffaadc46e51372
+    amd64:
+      v0.4.4: 5f4d2f34868a87cf1188212cf7cb598e76a32f389054089aad1fa46e6daf1e1b
+      v0.4.3: 6f6a774f03ad4190a709d7d4dcbb4af956ca0eb308cb0d0a44abc90777b0b21a
+    ppc64le:
+      v0.4.4: 0
+      v0.4.3: 0
+  linux:
+    arm:
+      v0.4.4: 4f3d550227e014f3ba7c72031108ffda0654cb755f70eb96be413a5102d23333
+      v0.4.3: 68eb9e9f5bba29c7c19fb52bfc43a31300f92282a4e81f0c51ad26ed2c73eb03
+    arm64:
+      v0.4.4: f8f0cdbf698ed3e8cb46e7bd213754701341a10e11ccb69c90d4863e0cf5a16a
+      v0.4.3: 0994923848882ad0d4825d5af1dc227687a10a02688f785709b03549dd34d71d
+    amd64:
+      v0.4.4: e471396b0ed4f2be092b4854cc030dfcbb12b86197972e7bef0cb89ad9c72477
+      v0.4.3: 5df32eaa0e888a2566439c4ccb2ef3a3e6e89522f2f2126030171e2585585e4f
+    ppc64le:
+      v0.4.4: 0
+      v0.4.3: 0
+  windows:
+    arm:
+      v0.4.4: 0
+      v0.4.3: 0
+    arm64:
+      v0.4.4: 0
+      v0.4.3: 0
+    amd64:
+      v0.4.4: da0dfeb2a598f11fb9ce871ee7f3b1a69beb371a45f531ee65a71b2201511d28
+      v0.4.3: d1343a366a867e9de60b23cc3d8ee935ee185af25ff8f717a5e696ba3cae7c85
+    ppc64le:
+      v0.4.4: 0
+      v0.4.3: 0
 helm_archive_checksums:
   arm:
     v3.18.4: 34ea88aef15fd822e839da262176a36e865bb9cfdb89b1f723811c0cc527f981
