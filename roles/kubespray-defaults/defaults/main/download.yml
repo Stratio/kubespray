@@ -164,9 +164,9 @@ crictl_version: "{{ crictl_supported_versions[kube_major_version] }}"
 
 crio_supported_versions:
   v1.35: v1.35.0
-  v1.34: v1.34.1
-  v1.33: v1.33.0
-  v1.32: v1.32.0
+  v1.34: v1.34.5
+  v1.33: v1.33.9
+  v1.32: v1.32.13
   v1.31: v1.31.3
   v1.30: v1.30.3
   v1.29: v1.29.1
