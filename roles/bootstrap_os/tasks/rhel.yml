@@ -69,9 +69,10 @@
     name:
       - "rhel-8-for-*-baseos-rpms"
       - "rhel-8-for-*-appstream-rpms"
-    state: "{{ 'enabled' if (rhel_enable_repos | bool) else 'disabled' }}"
+    state: enabled
   when:
     - ansible_facts['distribution_major_version'] == "8"
+    - rhel_enable_repos | bool
     - (not rh_subscription_status.changed) or (rh_subscription_username is defined) or (rh_subscription_org_id is defined)
 
 - name: Check presence of fastestmirror.conf
