@@ -1,0 +1,16 @@
+---
+# etcdctl environment for talking to a degraded cluster.
+#
+# Endpoints are pinned to localhost rather than etcd_access_addresses: the
+# cluster is broken by definition here, so the only member we can rely on
+# reaching is the one we are running on.
+#
+# Certificate paths differ by deployment type. With etcd_deployment_type
+# 'kubeadm' etcd is a static pod and its PKI lives under the kubernetes cert
+# dir; otherwise it is a host binary with its own PKI and per-node admin certs.
+etcdctl_env:
+  ETCDCTL_API: "3"
+  ETCDCTL_ENDPOINTS: "https://127.0.0.1:2379"
+  ETCDCTL_CERT: "{{ kube_cert_dir + '/etcd/server.crt' if etcd_deployment_type == 'kubeadm' else etcd_cert_dir + '/admin-' + groups['etcd'] | first + '.pem' }}"
+  ETCDCTL_KEY: "{{ kube_cert_dir + '/etcd/server.key' if etcd_deployment_type == 'kubeadm' else etcd_cert_dir + '/admin-' + groups['etcd'] | first + '-key.pem' }}"
+  ETCDCTL_CACERT: "{{ kube_cert_dir + '/etcd/ca.crt' if etcd_deployment_type == 'kubeadm' else etcd_cert_dir + '/ca.pem' }}"
