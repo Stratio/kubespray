@@ -121,7 +121,7 @@
 - name: "Check that ipv4 IP range is enough for the nodes"
   assert:
     that:
-      - 2 ** (kube_network_node_prefix - kube_pods_subnet | ansible.utils.ipaddr('prefix')) >= groups['k8s_cluster'] | length
+      - 2 ** (kube_network_node_prefix | int - kube_pods_subnet | ansible.utils.ipaddr('prefix')) >= groups['k8s_cluster'] | length
     msg: "Not enough ipv4 IPs are available for the desired node count."
   when:
     - ipv4_stack | bool
@@ -155,7 +155,7 @@
 - name: "Check that ipv6 IP range is enough for the nodes"
   assert:
     that:
-      - 2 ** (kube_network_node_prefix_ipv6 - kube_pods_subnet_ipv6 | ansible.utils.ipaddr('prefix')) >= groups['k8s_cluster'] | length
+      - 2 ** (kube_network_node_prefix_ipv6 | int - kube_pods_subnet_ipv6 | ansible.utils.ipaddr('prefix')) >= groups['k8s_cluster'] | length
     msg: "Not enough ipv6 IPs are available for the desired node count."
   when:
     - ipv6_stack | bool
