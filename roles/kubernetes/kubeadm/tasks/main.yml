@@ -39,16 +39,41 @@
   delegate_to: "{{ groups['kube_control_plane'][0] }}"
   run_once: true
 
+# --config was added in 44ab38baa so kubeadm can read advertiseAddress from the
+# config in setups where it cannot be derived from the default gateway. It also
+# changes what the command does: kubeadm now creates the token that
+# bootstrapTokens pins instead of a fresh random one. kubeadm-config.yaml is
+# templated with that token as soon as kubeadm_token is known, so on an upgrade
+# the file already carries a live token from the install and the call fails with
+#
+#     error: a token with id "xxxxxx" already exists
+#
+# That token is still valid for joining, so reuse it rather than failing.
 - name: Create kubeadm token for joining nodes with 24h expiration (default)
   command: "{{ bin_dir }}/kubeadm token create --config={{ kube_config_dir }}/kubeadm-config.yaml"
   register: temp_token
   delegate_to: "{{ groups['kube_control_plane'][0] }}"
   when: kubeadm_token is not defined
   changed_when: false
+  failed_when:
+    - temp_token.rc != 0
+    - '"already exists" not in temp_token.stderr'
+
+- name: Read the bootstrap token already pinned in kubeadm-config
+  slurp:
+    src: "{{ kube_config_dir }}/kubeadm-config.yaml"
+  register: pinned_kubeadm_config
+  delegate_to: "{{ groups['kube_control_plane'][0] }}"
+  when:
+    - kubeadm_token is not defined
+    - temp_token.rc | default(0) != 0
 
 - name: Set kubeadm_token to generated token
   set_fact:
-    kubeadm_token: "{{ temp_token.stdout }}"
+    kubeadm_token: >-
+      {{ temp_token.stdout if temp_token.rc | default(0) == 0 else
+         (pinned_kubeadm_config.content | b64decode | from_yaml_all
+          | selectattr('kind', 'equalto', 'InitConfiguration') | first).bootstrapTokens[0].token }}
   when: kubeadm_token is not defined
 
 - name: Get kubeconfig for join discovery process

@@ -47,8 +47,14 @@ oom_score = {{ containerd_oom_score }}
 {% for runtime in [containerd_runc_runtime] + containerd_additional_runtimes %}
         [plugins."io.containerd.grpc.v1.cri".containerd.runtimes.{{ runtime.name }}]
           runtime_type = "{{ runtime.type }}"
-          runtime_engine = "{{ runtime.engine }}"
-          runtime_root = "{{ runtime.root }}"
+{# containerd_runc_runtime carried engine: "" and root: "" until 2.31; the keys
+   were dropped from the default without updating this template, which only
+   renders for containerd < 2.0.0 and is therefore not covered by CI. Under
+   ansible-core 2.19 the missing attribute is a hard error, not an empty string:
+   "object of type 'dict' has no attribute 'engine'". Defaulting to "" keeps the
+   rendered file identical to what 2.26 produced, so no spurious restart. #}
+          runtime_engine = "{{ runtime.engine | default('') }}"
+          runtime_root = "{{ runtime.root | default('') }}"
 {% if runtime.base_runtime_spec is defined %}
           base_runtime_spec = "{{ containerd_cfg_dir }}/{{ runtime.base_runtime_spec }}"
 {% endif %}
